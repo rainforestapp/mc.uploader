@@ -131,7 +131,7 @@ var rateLimitThrottle = function(requestCount) {
   return function() {
     var args = arguments;
     return new Promise(function(resolve) {
-      setTimeout(resolve.bind(this, args), Math.floor(requestCount / requestsPerSecond) * 1000);
+      setTimeout(function() { resolve.apply(this, args); }, Math.floor(requestCount / requestsPerSecond) * 1000);
     });
   }
 }
@@ -181,7 +181,7 @@ request({
       body: { fields: data.fields,  }
     };
 
-    return request.post(apiOptions)
+    return request(apiOptions)
     .catch(function(err) {
       var error = JSON.parse(err.message.replace(/^[^{]+/, ''));
       throwApiError(error);
@@ -192,6 +192,7 @@ request({
     })
     .then(rateLimitThrottle(index + 1))
     .then(function(entry) {
+      entry = entry.body;
       if (cmd.publish) {
         showProgress('publishing entry with title: "' +  entry.fields.title[cmd.lang] + '", id: "' + entry.sys.id + '"');
         return request({
@@ -206,8 +207,9 @@ request({
           var msg = 'couldn\'t publish entry with title:  "' +  entry.fields.title[cmd.lang] + '", id: "' + entry.sys.id + '"';
           console.log(msg.red);
           throwApiError(error);
-        }).then(function(publishedEntry) {
-          showSuccess('published entry ' +  JSON.parse(publishedEntry).fields.title[cmd.lang]);
+        }).then(function(resp) {
+          var publishedEntry = JSON.parse(resp.body)
+          showSuccess('published entry ' +  publishedEntry.fields.title[cmd.lang]);
           return publishedEntry;
         });
       }
