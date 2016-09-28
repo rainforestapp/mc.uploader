@@ -7,11 +7,11 @@ var p = require('path');
 var omit = require('lodash/omit');
 var merge = require('lodash/merge');
 var get = require('lodash/get');
-var gfs = require('glob-fs');
 var mapValues = require('lodash/mapValues');
 var fm = require('front-matter');
 var Promise = require('bluebird');
 var fsp = Promise.promisifyAll(fs);
+var glob = Promise.promisifyAll(require('node-glob'));
 var rp = require('request-promise');
 
 cmd
@@ -145,7 +145,7 @@ rp.get(contentTypeEndpoint)
   throwError(JSON.parse(err.error).message);
 })
 .then(function() {
-  return gfs.readdirPromise(path);
+  return glob(path);
 })
 .catch(function(err) {
   throwError('Please supply a valid directory or path to upload', [{
