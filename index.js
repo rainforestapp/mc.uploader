@@ -184,7 +184,10 @@ request({
       body: { fields: data.fields,  }
     };
 
-    return request(apiOptions)
+    return rateLimitThrottle()
+    .then(function() {
+      return request(apiOptions);
+    })
     .catch(function(err) {
       var error = JSON.parse(err.message.replace(/^[^{]+/, ''));
       throwApiError(error);
@@ -193,7 +196,6 @@ request({
       showSuccess('uploaded file ' + file.path);
       return resp;
     })
-    .then(rateLimitThrottle())
     .then(function(entry) {
       entry = entry.body;
       if (cmd.publish) {
