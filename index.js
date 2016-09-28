@@ -52,8 +52,9 @@ var throwError = function(msg, args) {
 
 var throwApiError = function(error) {
   var type = get(error, 'sys.id');
-  console.log(type);
-  console.log(error.details.errors);
+  var msg = 'Contentful Api Error: ';
+  msg += JSON.stringify(error);
+  console.log(msg.red);
   process.exit(1);
 };
 
@@ -192,16 +193,21 @@ rp.get(contentTypeEndpoint)
     })
     .then(function(entry) {
       if (cmd.publish) {
-        showProgress('publishing entry ' +  entry.fields.title);
+        showProgress('publishing entry with title: "' +  entry.fields.title[cmd.lang] + '", id: "' + entry.sys.id + '"');
         return rp({
-          url: contentFulApi + '/entries/' + entry.sys.id + '/published',
           method: 'PUT',
+          url: contentfulApi + '/entries/' + entry.sys.id + '/published',
           headers: {
             'Authorization': 'Bearer ' + cmd.token,
-            'X-Contentful-Content-Type': cmd.contentType
+            'X-Contentful-Version': entry.sys.version
           }
+        }).catch(function(err) {
+          var error = JSON.parse(err.response.body);
+          var msg = 'couldn\'t publish entry with title:  "' +  entry.fields.title[cmd.lang] + '", id: "' + entry.sys.id + '"';
+          console.log(msg.red);
+          throwApiError(error);
         }).then(function(publishedEntry) {
-          showSuccess('published entry ' +  publishedEntry.fields.title);
+          showSuccess('published entry ' +  JSON.parse(publishedEntry).fields.title[cmd.lang]);
           return publishedEntry;
         });
       }
