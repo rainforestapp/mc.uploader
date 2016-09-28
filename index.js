@@ -92,13 +92,26 @@ if (isError) {
 }
 
 var validateFile = function(file) {
-  typeSpec.fields.forEach(function(field) {
+  console.log('heya');
+  // check if all required fields are contained in the fields object
+  typeSpec.fields.filter(function(field){
+    return field.required == true;
+  }).forEach(function(field) {
     // if a field is required but isn't contained by the file
     // we throw
-    if (field.required === true && !file.content.fields[field.id]) {
-      console.log('error missing field '.red + field.id.red + ''.red);
-      console.log('>> ' + file.path);
-      process.exit(1);
+    if (!file.content.fields[field.id]) {
+      throwError('validation against content type failed - missing field "' + field.id + '"', { file: file.path });
+    }
+  });
+
+  var typeSpecFields = typeSpec.fields.map(function(field) {
+    return field.id;
+  });
+
+  // check if all fields are contained in the type spec
+  Object.keys(file.content.fields).forEach(function(fieldName) {
+    if (typeSpecFields.indexOf(fieldName) < 0) {
+      throwError('validation against content type failed - invalid field "' + fieldName + '"', { file: file.path });
     }
   });
 };
