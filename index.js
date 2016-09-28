@@ -131,7 +131,7 @@ var rateLimitThrottle = function(requestCount) {
   return function() {
     var args = arguments;
     return new Promise(function(resolve) {
-      setTimeout(resolve.bind(this, args), Math.floor(requestCount / requestsPerSecond));
+      setTimeout(resolve.bind(this, args), Math.floor(requestCount / requestsPerSecond) * 1000);
     });
   }
 }
