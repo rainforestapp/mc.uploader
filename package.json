@@ -1,5 +1,6 @@
 {
-  "name": "contentful-frontmatter-uploader",
+  "name": "mc.uploader",
+  "url": "https://github.com/rainforestapp/mc.uploader",
   "version": "0.0.1",
   "description": "A cli tool to upload content with frontmatter to contentful",
   "main": "index.js",
