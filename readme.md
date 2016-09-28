@@ -6,6 +6,11 @@ Mc Uploader in the house!
 
 A tool to upload markdown files with frontmatter to contentful. This is the first release, if you find an issue or would like a feature added, please open an issue.
 
+### Features
+- Validates your data against your contentful content type before it uploads.
+- Rate limits requests according to contentful rate limit.
+- Transform your data with a mapper before you upload to contentful.
+
 ## Installation
 
 Install like so:

@@ -126,7 +126,8 @@ console.log('\nchecking authorisation and if content type exists'.blue +
 var typeSpec;
 var requestsPerSecond;
 var rateLimitThrottle = function(requestCount) {
-  // We can't have request than `requestsPerSecond`, so we do a throttle for the requests
+  // We can't have more request than `requestsPerSecond`
+  // so we don't offend the rate limit hence we throttle the requests
   return function() {
     var args = arguments;
     return new Promise(function(resolve) {
