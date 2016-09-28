@@ -193,7 +193,7 @@ rp.get(contentTypeEndpoint)
     .then(function(entry) {
       if (cmd.publish) {
         showProgress('publishing entry ' +  entry.fields.title);
-        return request({
+        return rp({
           url: contentFulApi + '/entries/' + entry.sys.id + '/published',
           method: 'PUT',
           headers: {
