@@ -154,7 +154,10 @@ request({
   resolveWithFullResponse: true
 })
 .then(function(resp) {
+  requestsRemainingThisSecond = resp.headers['x-contentful-ratelimit-second-remaining'];
   requestsPerSecond = resp.headers['x-contentful-ratelimit-second-limit'];
+  requestCount = requestsPerSecond - requestsRemainingThisSecond;
+
   typeSpec = JSON.parse(resp.body);
   showSuccess('Content type with name ' + typeSpec.name + ' has been found.');
 })
