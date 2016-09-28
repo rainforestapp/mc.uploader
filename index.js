@@ -112,7 +112,6 @@ var validateFile = function(file) {
 
 var mapFile = function(file) {
   var data = file.content.attributes;
-  data.slug = file.path.replace('.md', '');
   data.body = file.content.body;
 
   file.content.fields = mapValues(data, function(value, key) {
@@ -196,7 +195,7 @@ rp.get(contentTypeEndpoint)
       return resp;
     })
     .then(function(entry) {
-      if (cmd.publish === true) {
+      if (cmd.publish) {
         showProgress('publishing entry ' +  entry.fields.title);
         return request({
           url: contentFulApi + '/entries/' + entry.sys.id + '/published',
