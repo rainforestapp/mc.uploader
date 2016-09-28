@@ -36,15 +36,11 @@ if (cmd.mapper) {
   mapper = require(p.resolve(process.cwd(), cmd.mapper));
 }
 
-var throwError = function(msg, args) {
-  var errorMsg = 'Error: '.red + msg.red;
-  args = args || [];
-  args.forEach(function(arg) {
-    errorMsg+= '\n>>{\n';
-    errorMsg+= '>>  ' + arg.key + ': ';
-    errorMsg+= '"' + arg.val.red + '"';
-    errorMsg+= '\n>>}';
-  });
+var throwError = function(msg, obj) {
+  var errorMsg = 'Error: ' + msg;
+  if (obj) {
+    errorMsg += '\n ' + obj
+  }
   console.log(errorMsg.red);
   process.exit(1);
 };
@@ -143,6 +139,9 @@ rp.get(contentTypeEndpoint)
     return fsp.readFileAsync(file, 'utf8')
     .then(function(content) {
       return {path: file, content: fm(content)};
+    })
+    .catch(function(err) {
+      throwError('transforming yaml - ' + JSON.stringify(err) + '\n>> ' + file, err);
     });
   }));
 })
