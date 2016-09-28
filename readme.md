@@ -4,7 +4,7 @@ Mc Uploader in the house!
 
 ![](https://media.giphy.com/media/hxc32veg6tbqg/giphy.gif)
 
-A tool to upload markdown files with frontmatter to contentful.
+A tool to upload markdown files with frontmatter to contentful. This is the first release, if you find an issue or would like a feature added, please open an issue.
 
 ## Installation
 
