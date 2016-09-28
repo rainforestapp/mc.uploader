@@ -130,12 +130,10 @@ var rateLimitThrottle = function() {
   // We can't have more request than `requestsPerSecond`
   // so we don't offend the rate limit hence we throttle the requests
   requestCount++;
-  return function() {
-    var args = arguments;
-    return new Promise(function(resolve) {
-      setTimeout(function() { resolve.apply(this, args); }, Math.floor(requestCount / requestsPerSecond) * 1000);
-    });
-  }
+  var args = arguments;
+  return new Promise(function(resolve) {
+    setTimeout(function() { resolve.apply(this, args); }, Math.floor(requestCount / requestsPerSecond) * 1000);
+  });
 }
 
 request({
@@ -200,6 +198,7 @@ request({
       entry = entry.body;
       if (cmd.publish) {
         showProgress('publishing entry with title: "' +  get(entry, 'fields.title[cmd.lang]') + '", id: "' + get(entry, 'sys.id') + '"');
+
         return rateLimitThrottle()
         .then(function() {
           return request({
@@ -222,6 +221,7 @@ request({
           return publishedEntry;
         });
       }
+
       return entry;
     });
   }));
