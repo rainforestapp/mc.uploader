@@ -8,7 +8,7 @@ var omit = require('lodash/omit');
 var merge = require('lodash/merge');
 var get = require('lodash/get');
 var mapValues = require('lodash/mapValues');
-var fm = require('front-matter');
+var fm = require('gray-matter');
 var Promise = require('bluebird');
 var fsp = Promise.promisifyAll(fs);
 var request = require('request-promise');
@@ -116,8 +116,8 @@ var validateFile = function(file) {
 };
 
 var mapFile = function(file) {
-  var data = file.content.attributes;
-  data.body = file.content.body;
+  var data = file.content.data;
+  data.body = file.content.content;
 
   file.content.fields = mapValues(data, function(value, key) {
     var obj = { };
@@ -234,7 +234,6 @@ request({
           throwApiError(error);
         }).then(function(resp) {
           var publishedEntry = JSON.parse(resp.body)
-          console.log(publishedEntry);
           showSuccess('published entry ' +  publishedEntry.fields.title[cmd.lang]);
           return publishedEntry;
         });
