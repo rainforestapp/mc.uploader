@@ -125,9 +125,11 @@ console.log('\nchecking authorisation and if content type exists'.blue +
 
 var typeSpec;
 var requestsPerSecond;
-var rateLimitThrottle = function(requestCount) {
+var requestCount = 0;
+var rateLimitThrottle = function() {
   // We can't have more request than `requestsPerSecond`
   // so we don't offend the rate limit hence we throttle the requests
+  requestCount++;
   return function() {
     var args = arguments;
     return new Promise(function(resolve) {
@@ -191,19 +193,23 @@ request({
       showSuccess('uploaded file ' + file.path);
       return resp;
     })
-    .then(rateLimitThrottle(index + 1))
+    .then(rateLimitThrottle())
     .then(function(entry) {
       entry = entry.body;
       if (cmd.publish) {
         showProgress('publishing entry with title: "' +  get(entry, 'fields.title[cmd.lang]') + '", id: "' + get(entry, 'sys.id') + '"');
-        return request({
-          method: 'PUT',
-          url: contentfulApi + '/entries/' + entry.sys.id + '/published',
-          headers: {
-            'Authorization': 'Bearer ' + cmd.token,
-            'X-Contentful-Version': entry.sys.version
-          }
-        }).catch(function(err) {
+        return rateLimitThrottle()
+        .then(function() {
+          return request({
+            method: 'PUT',
+            url: contentfulApi + '/entries/' + entry.sys.id + '/published',
+            headers: {
+              'Authorization': 'Bearer ' + cmd.token,
+              'X-Contentful-Version': entry.sys.version
+            }
+          });
+        })
+        .catch(function(err) {
           var error = JSON.parse(err.response.body);
           var msg = 'couldn\'t publish entry with title:  "' +  entry.fields.title[cmd.lang] + '", id: "' + entry.sys.id + '"';
           console.log(msg.red);
