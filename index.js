@@ -150,6 +150,8 @@ rp.get(contentTypeEndpoint)
 .catch(function(err) {
   throwError('Please supply a valid directory or path to upload', [{
     key: 'invalid path', val: path,
+  },
+  {
     key: 'error', val: err
   }]);
 })
