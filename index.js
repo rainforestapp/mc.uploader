@@ -54,8 +54,6 @@ var throwApiError = function(error) {
   var type = get(error, 'sys.id');
   console.log(type);
   console.log(error.details.errors);
-  console.log('booom');
-  //if (type )
   process.exit(1);
 };
 
@@ -102,13 +100,12 @@ var validateFile = function(file) {
   typeSpec.fields.forEach(function(field) {
     // if a field is required but isn't contained by the file
     // we throw
-    if (field.required === true && !file.content.attributes[field.id]) {
+    if (field.required === true && !file.content.fields[field.id]) {
       console.log('error missing field '.red + field.id.red + ''.red);
       console.log('>> ' + file.path);
       process.exit(1);
     }
   });
-  console.log(file);
 };
 
 var mapFile = function(file) {
@@ -208,7 +205,7 @@ rp.get(contentTypeEndpoint)
           return publishedEntry;
         });
       }
-      return resp;
+      return entry;
     });
   }));
 }).then(function(){
