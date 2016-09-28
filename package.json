@@ -1,7 +1,7 @@
 {
   "name": "mc.uploader",
   "url": "https://github.com/rainforestapp/mc.uploader",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "A cli tool to upload content with frontmatter to contentful",
   "main": "index.js",
   "scripts": {
@@ -19,7 +19,6 @@
     "commander": "^2.9.0",
     "front-matter": "^2.1.0",
     "lodash": "^4.16.2",
-    "request": "^2.75.0",
-    "request-promise": "^4.1.1"
+    "request": "^2.75.0"
   }
 }

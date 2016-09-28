@@ -11,8 +11,7 @@ var mapValues = require('lodash/mapValues');
 var fm = require('front-matter');
 var Promise = require('bluebird');
 var fsp = Promise.promisifyAll(fs);
-var rp = require('request-promise');
-
+var request = Promise.promisify(require("request"));
 
 cmd
 .version('0.0.1')
@@ -125,9 +124,24 @@ console.log('\nchecking authorisation and if content type exists'.blue +
             '\n>> url: ' + contentTypeEndpoint.underline);
 
 var typeSpec;
-rp.get(contentTypeEndpoint)
-.then(function(type) {
-  typeSpec = JSON.parse(type);
+var requestsPerSecond;
+var rateLimitThrottle = function(requestCount) {
+  // We can't have request than `requestsPerSecond`, so we do a throttle for the requests
+  return function() {
+    var args = arguments;
+    return new Promise(function(resolve) {
+      setTimeout(resolve.bind(this, args), Math.floor(requestCount / requestsPerSecond));
+    });
+  }
+}
+
+request({
+  method: 'GET',
+  url: contentTypeEndpoint
+})
+.then(function(resp) {
+  requestsPerSecond = resp.headers['x-contentful-ratelimit-second-limit'];
+  typeSpec = JSON.parse(resp.body);
   showSuccess('Content type with name ' + typeSpec.name + ' has been found.');
 })
 .catch(function(err) {
@@ -152,7 +166,7 @@ rp.get(contentTypeEndpoint)
   return files;
 })
 .then(function(files) {
-  return Promise.all(files.map(function(file){
+  return Promise.all(files.map(function(file, index){
     var data = file.content;
     showProgress('uploading file ' + file.path);
     var apiOptions = {
@@ -166,7 +180,7 @@ rp.get(contentTypeEndpoint)
       body: { fields: data.fields,  }
     };
 
-    return rp.post(apiOptions)
+    return request.post(apiOptions)
     .catch(function(err) {
       var error = JSON.parse(err.message.replace(/^[^{]+/, ''));
       throwApiError(error);
@@ -175,10 +189,11 @@ rp.get(contentTypeEndpoint)
       showSuccess('uploaded file ' + file.path);
       return resp;
     })
+    .then(rateLimitThrottle(index + 1))
     .then(function(entry) {
       if (cmd.publish) {
         showProgress('publishing entry with title: "' +  entry.fields.title[cmd.lang] + '", id: "' + entry.sys.id + '"');
-        return rp({
+        return request({
           method: 'PUT',
           url: contentfulApi + '/entries/' + entry.sys.id + '/published',
           headers: {
