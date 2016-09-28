@@ -135,12 +135,6 @@ var addDir = function(files) {
 console.log('\nchecking authorisation and if content type exists'.blue +
             '\n>> url: ' + contentTypeEndpoint.underline);
 
-var filterMarkdownFiles = function(paths) {
-  return paths.filter(function(path) {
-    if (path.)
-  });
-}
-
 var typeSpec;
 rp.get(contentTypeEndpoint)
 .then(function(type) {
