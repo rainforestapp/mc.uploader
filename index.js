@@ -11,7 +11,7 @@ var mapValues = require('lodash/mapValues');
 var fm = require('front-matter');
 var Promise = require('bluebird');
 var fsp = Promise.promisifyAll(fs);
-var request = Promise.promisify(require("request"));
+var request = require('request-promise');
 
 cmd
 .version('0.0.1')
@@ -138,7 +138,8 @@ var rateLimitThrottle = function() {
 
 request({
   method: 'GET',
-  url: contentTypeEndpoint
+  url: contentTypeEndpoint,
+  resolveWithFullResponse: true
 })
 .then(function(resp) {
   requestsPerSecond = resp.headers['x-contentful-ratelimit-second-limit'];
@@ -179,7 +180,8 @@ request({
         'Authorization': 'Bearer ' + cmd.token,
         'X-Contentful-Content-Type': cmd.contentType
       },
-      body: { fields: data.fields,  }
+      body: { fields: data.fields,  },
+      resolveWithFullResponse: true
     };
 
     return rateLimitThrottle()
@@ -196,13 +198,16 @@ request({
     })
     .then(function(entry) {
       entry = entry.body;
+      get(entry, 'sys.id')
+
       if (cmd.publish) {
-        showProgress('publishing entry with title: "' +  get(entry, 'fields.title[cmd.lang]') + '", id: "' + get(entry, 'sys.id') + '"');
+        showProgress('publishing entry with title: "' +  get(entry, 'fields.title[' + cmd.lang + ']') + '", id: "' + get(entry, 'sys.id') + '"');
 
         return rateLimitThrottle()
         .then(function() {
           return request({
             method: 'PUT',
+            resolveWithFullResponse: true,
             url: contentfulApi + '/entries/' + entry.sys.id + '/published',
             headers: {
               'Authorization': 'Bearer ' + cmd.token,
@@ -217,6 +222,7 @@ request({
           throwApiError(error);
         }).then(function(resp) {
           var publishedEntry = JSON.parse(resp.body)
+          console.log(publishedEntry);
           showSuccess('published entry ' +  publishedEntry.fields.title[cmd.lang]);
           return publishedEntry;
         });

@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-		"release": "git push origin master && npm publish"
+    "release": "git push origin master && npm publish"
   },
   "bin": {
     "mc.uploader": "./index.js"
@@ -19,6 +19,6 @@
     "commander": "^2.9.0",
     "front-matter": "^2.1.0",
     "lodash": "^4.16.2",
-    "request": "^2.75.0"
+    "request-promise": "^4.1.1"
   }
 }
