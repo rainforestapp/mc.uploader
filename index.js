@@ -11,8 +11,9 @@ var mapValues = require('lodash/mapValues');
 var fm = require('front-matter');
 var Promise = require('bluebird');
 var fsp = Promise.promisifyAll(fs);
-var glob = Promise.promisifyAll(require('node-glob'));
+var glob = Promise.promisify(require('glob'));
 var rp = require('request-promise');
+
 
 cmd
 .version('0.0.1')
@@ -145,13 +146,12 @@ rp.get(contentTypeEndpoint)
   throwError(JSON.parse(err.error).message);
 })
 .then(function() {
-  return glob(path);
+  return glob(path, {});
 })
 .catch(function(err) {
   throwError('Please supply a valid directory or path to upload', [{
     key: 'invalid path', val: path,
-  },
-  {
+  }, {
     key: 'error', val: err
   }]);
 })
