@@ -167,6 +167,7 @@ request({
   return files;
 })
 .then(function(files) {
+  showProgress('starting upload of ' + files.length + ' files.');
   return Promise.all(files.map(function(file, index){
     var data = file.content;
     showProgress('uploading file ' + file.path);
@@ -194,7 +195,7 @@ request({
     .then(function(entry) {
       entry = entry.body;
       if (cmd.publish) {
-        showProgress('publishing entry with title: "' +  entry.fields.title[cmd.lang] + '", id: "' + entry.sys.id + '"');
+        showProgress('publishing entry with title: "' +  get(entry, 'fields.title[cmd.lang]') + '", id: "' + get(entry, 'sys.id') + '"');
         return request({
           method: 'PUT',
           url: contentfulApi + '/entries/' + entry.sys.id + '/published',
@@ -216,6 +217,7 @@ request({
       return entry;
     });
   }));
+}).catch(function(){
 }).then(function(){
   var msg = 'All content uploaded';
   if (cmd.publish === true) {
