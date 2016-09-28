@@ -139,7 +139,7 @@ var typeSpec;
 rp.get(contentTypeEndpoint)
 .then(function(type) {
   typeSpec = JSON.parse(type);
-  showSuccess('Content type with name ' + type.name + ' has been found.');
+  showSuccess('Content type with name ' + typeSpec.name + ' has been found.');
 })
 .catch(function(err) {
   throwError(JSON.parse(err.error).message);
@@ -148,7 +148,10 @@ rp.get(contentTypeEndpoint)
   return gfs.readdirPromise(path);
 })
 .catch(function(err) {
-  throwError('Please supply a valid directory or path to upload', [{ key: 'path', val: path }]);
+  throwError('Please supply a valid directory or path to upload', [{
+    key: 'invalid path', val: path,
+    key: 'error', val: err
+  }]);
 })
 .then(function(filenames) {
   return Promise.all(filenames.map(function(file){
