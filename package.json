@@ -5,7 +5,8 @@
   "description": "A cli tool to upload content with frontmatter to contentful",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+		"release": "git push origin master && npm publish"
   },
   "bin": {
     "mc.uploader": "./index.js"
