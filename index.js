@@ -11,7 +11,6 @@ var mapValues = require('lodash/mapValues');
 var fm = require('front-matter');
 var Promise = require('bluebird');
 var fsp = Promise.promisifyAll(fs);
-var glob = Promise.promisify(require('glob'));
 var rp = require('request-promise');
 
 
@@ -123,13 +122,8 @@ var mapFile = function(file) {
 };
 
 var contentTypeEndpoint = contentfulApi + '/content_types/' + cmd.contentType + '?access_token=' + cmd.token;
-var path = p.resolve(process.cwd(), cmd.args[0]);
+var path = cmd.args;
 var toString = function(file) { return file.toString(); };
-var addDir = function(files) {
-  return files.map(function(file){
-    return p.join(path, file);
-  });
-};
 
 console.log('\nchecking authorisation and if content type exists'.blue +
             '\n>> url: ' + contentTypeEndpoint.underline);
@@ -143,17 +137,8 @@ rp.get(contentTypeEndpoint)
 .catch(function(err) {
   throwError(JSON.parse(err.error).message);
 })
-.then(function() {
-  return glob(path, {});
-})
-.catch(function(err) {
-  throwError('Please supply a valid directory or path to upload', [{
-    key: 'invalid path', val: path,
-  }, {
-    key: 'error', val: err
-  }]);
-})
 .then(function(filenames) {
+  var filenames = path;
   return Promise.all(filenames.map(function(file){
     return fsp.readFileAsync(file, 'utf8')
     .then(function(content) {
